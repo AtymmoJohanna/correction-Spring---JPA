@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-//import HomeView from '../views/HomeView.vue'
+import HomeView from '../views/HomeView.vue'
 import ParticipationProjet from "../components/ParticipationProjet.vue";
 
 
@@ -29,9 +29,9 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: "/participation-projet",
-      name: "ParticipationProjet",
-      component: ParticipationProjet,
+      path: '/',
+      name: 'home',
+      component: HomeView,
     },
     {
       path: '/about',

@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted, computed } from "vue";
-import axios from "axios";
+import axios from 'axios';
 
 // Objet participation lié à une personne et un projet
+console.log("bjr");
 const nouvelleParticipation = ref({
   personneId: "",
   projetId: "",
@@ -13,6 +14,11 @@ const nouvelleParticipation = ref({
 // Listes des données
 const personnes = ref([]);
 const projets = ref([]);
+
+// Liste des projets non terminés
+const projetsNonTermines = computed(() => {
+  return projets.value.filter(projet => !projet.fin);
+});
 
 // Messages d'état
 const message = ref("");
@@ -33,8 +39,8 @@ const formValide = computed(() => {
 const fetchData = async () => {
   try {
     const [resPersonnes, resProjets] = await Promise.all([
-      axios.get("/api/personnes"),
-      axios.get("/api/projets"),
+      axios.get("http://localhost:8989/api/personnes"),
+      axios.get("http://localhost:8989/api/projets")
     ]);
     personnes.value = resPersonnes.data;
     projets.value = resProjets.data;
@@ -78,7 +84,7 @@ onMounted(fetchData);
     <label for="projetId">Projet</label>
     <select id="projetId" v-model="nouvelleParticipation.projetId" required>
       <option disabled value="">Choisissez un projet</option>
-      <option v-for="projet in projets" :key="projet.id" :value="projet.id">{{ projet.nom}}</option>
+      <option v-for="projet in projetsNonTermines" :key="projet.id" :value="projet.id">{{ projet.nom}}</option>
     </select>
 
     <label for="role">Rôle</label>
