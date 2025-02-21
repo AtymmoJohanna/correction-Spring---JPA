@@ -16,9 +16,9 @@ const personnes = ref([]);
 const projets = ref([]);
 
 // Liste des projets non terminés
-const projetsNonTermines = computed(() => {
+/*const projetsNonTermines = computed(() => {
   return projets.value.filter(projet => !projet.fin);
-});
+});*/
 
 // Messages d'état
 const message = ref("");
@@ -42,8 +42,18 @@ const fetchData = async () => {
       axios.get("http://localhost:8989/api/personnes"),
       axios.get("http://localhost:8989/api/projets")
     ]);
-    personnes.value = resPersonnes.data;
-    projets.value = resProjets.data;
+    personnes.value = resPersonnes.data._embedded.personnes;
+
+    let resultProjet = resProjets.data._embedded.projets
+
+    for (let projet of resultProjet){
+      if (projet.fin == null){
+        projets.value.push(projet);
+      }
+    }
+
+    //projets.value = resProjets.data;
+
   } catch (error) {
     console.error("Erreur lors du chargement des données", error);
     message.value = "Erreur lors du chargement des données";
@@ -53,6 +63,14 @@ const fetchData = async () => {
 // Soumission du formulaire
 const submitParticipation = async () => {
   try {
+
+    // Conversion du pourcentage en valeur décimale
+   /* let participationData = { ...nouvelleParticipation.value };
+    participationData.pourcentage = participationData.pourcentage / 100;
+
+    await axios.post("/api/participation", participationData);*/
+
+
     await axios.post("/api/participations", nouvelleParticipation.value);
     message.value = "Participation enregistrée avec succès !";
     successMessage.value = true;
@@ -61,7 +79,12 @@ const submitParticipation = async () => {
     // Réinitialisation du formulaire
     nouvelleParticipation.value = { personneId: "", projetId: "", role: "", pourcentage: "" };
   } catch (error) {
-    message.value = "Erreur lors de l'enregistrement.";
+    //message.value = "Erreur lors de l'enregistrement.";
+    if (error.response && error.response.data && error.response.data) {
+      message.value = error.response.data.message; // Récupération du message d'erreur du backend
+    } else {
+      message.value = "Erreur lors de l'enregistrement.";
+    }
     successMessage.value = false;
     errorMessage.value = true;
   }
@@ -82,10 +105,11 @@ onMounted(fetchData);
     </select>
 
     <label for="projetId">Projet</label>
-    <select id="projetId" v-model="nouvelleParticipation.projetId" required>
+   <select id="projetId" v-model="nouvelleParticipation.projetId" required>
       <option disabled value="">Choisissez un projet</option>
-      <option v-for="projet in projetsNonTermines" :key="projet.id" :value="projet.id">{{ projet.nom}}</option>
+      <option v-for="projet in projets" :key="projet.id" :value="projet.id">{{ projet.nom}}</option>
     </select>
+
 
     <label for="role">Rôle</label>
     <input id="role" type="text" v-model="nouvelleParticipation.role" required/>
