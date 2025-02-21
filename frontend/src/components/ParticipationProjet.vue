@@ -69,9 +69,10 @@ const submitParticipation = async () => {
     participationData.pourcentage = participationData.pourcentage / 100;
 
     await axios.post("/api/participation", participationData);*/
+    //nouvelleParticipation.pourcentage = nouvelleParticipation.pourcentage;
+    console.log(typeof nouvelleParticipation.value.pourcentage)
 
-
-    await axios.post("/api/participations", nouvelleParticipation.value);
+    await axios.post("/api/gestion/participation", nouvelleParticipation.value);
     message.value = "Participation enregistrée avec succès !";
     successMessage.value = true;
     errorMessage.value = false;
@@ -79,6 +80,7 @@ const submitParticipation = async () => {
     // Réinitialisation du formulaire
     nouvelleParticipation.value = { personneId: "", projetId: "", role: "", pourcentage: "" };
   } catch (error) {
+    console.log(typeof nouvelleParticipation.value.pourcentage)
     //message.value = "Erreur lors de l'enregistrement.";
     if (error.response && error.response.data && error.response.data) {
       message.value = error.response.data.message; // Récupération du message d'erreur du backend
@@ -115,8 +117,8 @@ onMounted(fetchData);
     <input id="role" type="text" v-model="nouvelleParticipation.role" required/>
 
     <label for="pourcentage">Pourcentage</label>
-    <input id="pourcentage" required type="range" v-model="nouvelleParticipation.pourcentage" min="0" max="100">
-    <p>{{ nouvelleParticipation.pourcentage}}%</p>
+    <input id="pourcentage" required type="range" v-model.number="nouvelleParticipation.pourcentage" min="0" max="1" step="0.01">
+    <p>{{ (nouvelleParticipation.pourcentage * 100).toFixed(0) }}%</p>
 
     <button type="submit">Enregistrer</button>
   </form>
